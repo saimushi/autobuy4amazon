@@ -19,7 +19,7 @@
 ## 使い方
 
 - 先ずはこの「[glitch.com](https://glitch.com/)に会員登録を行って下さい。
-- その後、このページの「Remix your own」を押して、新たにプロジェクトを作成して下さい。
+- その後、[このページ](https://glitch.com/~autobuy4amazon)の「Remix your own」を押して、新たにプロジェクトを作成して下さい。
 - 作成したプロジェクトの「Share」 -> 「Live site」のURLをコピーして置いて下さい。
 - 次に「[https://console.cron-job.org/](https://console.cron-job.org/)」に会員登録を行って下さい。
 - 「[cron-job.org](https://console.cron-job.org/)」にログインし「CREATE CRONJOB」を押して下さい。
