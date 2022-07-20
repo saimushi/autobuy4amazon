@@ -148,24 +148,45 @@ const checkAmazon = async function (argid, argpass, argitemid) {
       await notifyLine(linetoken, targetURL + '?m=AN1VRQENFRJN5\nは購入出来る状態です。購入を試みます。');
       console.log('販売元がAmazonなのでそのまま購入を試みる');
 
-      console.log('カートに追加');
+      console.log('カートに追加出来るか');
       const iselement = await page.evaluate(function(selector) {
-        return true;
+        return (document.querySelector(selector)) ? true : false;
       }, '#add-to-cart-button');
       if (iselement) {
+        console.log('カートに追加 iselement=', iselement);
         await page.evaluate(function(selector) {
           return document.querySelector(selector).click();
         }, '#add-to-cart-button');
+        console.log('カートに追加 OK?');
         await page.waitForSelector('#sc-mini-buy-box');
         //await page.waitForTimeout(1000);
         console.log('カートに追加 OK');
         return await buyAmazon(argitemid, true);
       }
+      else {
+        console.log('予約商品ではないか？');
+        // 予約アイテムかどうかを確認
+        const isrelement = await page.evaluate(function(selector) {
+          return (document.querySelector(selector)) ? true : false;
+        }, '#buy-now-button[title="今すぐ予約注文する"]');
+        if (isrelement) {
+          console.log('今すぐ予約する isrelement=', isrelement);
+          // 予約注文
+          await page.evaluate(function(selector) {
+            return document.querySelector(selector).click();
+          }, '#buy-now-button');
+          console.log('今すぐ予約する OK?');
+          await page.waitForSelector('input[name="placeYourOrder1"]');
+          console.log('今すぐ予約する OK');
+          // 予約
+          return await buyAmazon(argitemid, true, true);
+        }
+      }
     }
     console.log('販売元がAmazonじゃ無い');
   }
   catch (error) {
-    console.log('販売元がそもそも無い');
+    console.log('販売元がそもそも無い', error);
   }
 
   console.log('販売元が無いので販売者一覧にAmazonが居ないかチェックする');
@@ -280,7 +301,7 @@ const loginAmazon = async function (argid, argpassd) {
   return;
 };
 
-const buyAmazon = async function (argitemid, argViewCartSkiped) {
+const buyAmazon = async function (argitemid, argViewCartSkiped, argReserve) {
   let result = false;
   const targetURL = 'https://www.amazon.co.jp/dp/' + argitemid;
   try {
@@ -291,21 +312,33 @@ const buyAmazon = async function (argitemid, argViewCartSkiped) {
       console.log('カートを表示 OK');
     }
 
-    console.log('レジに進む');
-    await page.evaluate(function(selector) {
-      return document.querySelector(selector).click();
-    }, 'input[name="proceedToRetailCheckout"]');
-    await page.waitForSelector('#shipping-summary');
-    console.log('レジに進む OK');
+    if (argReserve) {
+      console.log('予約注文の確定');
+      await page.evaluate(function(selector) {
+        return document.querySelector(selector).click();
+      }, 'input[name="placeYourOrder1"]');
+      await page.waitForSelector('#widget-purchaseConfirmationStatus');
+      console.log('予約注文完了 OK');
+      await page.screenshot({ path: 'screenshot.png'});
+      await notifyLine(linetoken, targetURL + '?m=AN1VRQENFRJN5\nは予約完了しました。\n成功したかどうか確認して下さい。\nhttps://www.amazon.co.jp/gp/css/order-history?ref_=nav_orders_first', 'screenshot.png');
+    }
+    else {
+      console.log('レジに進む');
+      await page.evaluate(function(selector) {
+        return document.querySelector(selector).click();
+      }, 'input[name="proceedToRetailCheckout"]');
+      await page.waitForSelector('#shipping-summary');
+      console.log('レジに進む OK');
 
-    console.log('注文の確定');
-    await page.evaluate(function(selector) {
-      return document.querySelector(selector).click();
-    }, 'input[name="placeYourOrder1"]');
-    await page.waitForSelector('#widget-purchaseConfirmationStatus');
-    console.log('注文完了');
-    await page.screenshot({ path: 'screenshot.png'});
-    await notifyLine(linetoken, targetURL + '?m=AN1VRQENFRJN5\nは注文完了しました。\n成功したかどうか確認して下さい。\nhttps://www.amazon.co.jp/gp/css/order-history?ref_=nav_orders_first', 'screenshot.png');
+      console.log('注文の確定');
+      await page.evaluate(function(selector) {
+        return document.querySelector(selector).click();
+      }, 'input[name="placeYourOrder1"]');
+      await page.waitForSelector('#widget-purchaseConfirmationStatus');
+      console.log('注文完了');
+      await page.screenshot({ path: 'screenshot.png'});
+      await notifyLine(linetoken, targetURL + '?m=AN1VRQENFRJN5\nは注文完了しました。\n成功したかどうか確認して下さい。\nhttps://www.amazon.co.jp/gp/css/order-history?ref_=nav_orders_first', 'screenshot.png');
+    }
 
     console.log('注文が成功したかどうかをチェック');
     const success = await page.evaluate(function(selector) {
@@ -323,19 +356,38 @@ const buyAmazon = async function (argitemid, argViewCartSkiped) {
     console.log('注文完了出来す', error);
   }
 
-  console.log('実は既に購入済みでは無かったかをエラーから確認を試みる');
+  console.log('実は既に購入済みでは無かったかをエラーから確認を試みる1');
   try {
     let aleadybuy = await page.evaluate(function(selector) {
       return document.querySelector(selector).textContent;
     }, '.a-alert-content [data-messageid="quantityPermittedLimitViolation"]');
     console.log('aleadybuy=', aleadybuy);
     if ('string' == typeof aleadybuy && -1 < aleadybuy.indexOf('購入数の制限があります')) {
-      console.log('実は既に購入済みだったので購入成功として処理');
+      console.log('実は既に購入済みだったので購入成功として処理2');
       result = true;
+      await notifyLine(linetoken, targetURL + '?m=AN1VRQENFRJN5\nは注文済みでした。\n注文済みかどうか確認して下さい。\nhttps://www.amazon.co.jp/gp/css/order-history?ref_=nav_orders_first');
     }
   }
   catch (error) {
-    console.log('既に購入済みかどうか確認出来ず', error);
+    console.log('既に購入済みかどうか確認出来ず1', error);
+  }
+
+  if (true !== result) {
+    console.log('実は既に購入済みでは無かったかをエラーから確認を試みる2');
+    try {
+      let aleadybuy = await page.evaluate(function(selector) {
+        return document.querySelector(selector).textContent;
+      }, '.a-spacing-base.item-row:first-child .a-alert-inline-error .a-spacing-small');
+      console.log('aleadybuy=', aleadybuy);
+      if ('string' == typeof aleadybuy && -1 < aleadybuy.indexOf('購入数に制限があります')) {
+        console.log('実は既に購入済みだったので購入成功として処理2');
+        result = true;
+        await notifyLine(linetoken, targetURL + '?m=AN1VRQENFRJN5\nは注文済みでした。\n注文済みかどうか確認して下さい。\nhttps://www.amazon.co.jp/gp/css/order-history?ref_=nav_orders_first');
+      }
+    }
+    catch (error) {
+      console.log('既に購入済みかどうか確認出来ず2', error);
+    }
   }
 
   if (true === result) {
@@ -346,7 +398,7 @@ const buyAmazon = async function (argitemid, argViewCartSkiped) {
       await page.waitForSelector('#nav-cart-count');
       console.log('空にする為のカートを表示 OK');
       let is = await page.evaluate(function(selector) {
-        return true
+        return (document.querySelector(selector)) ? true : false;
       }, 'input[name="proceedToRetailCheckout"]');
       if (is) {
         console.log('アイテム削除');
