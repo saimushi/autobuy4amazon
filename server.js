@@ -95,7 +95,7 @@ if ('string' == typeof item5) {
 console.log('items=', items);
 
 const notifyLine = async function (argtoken, argmessage, argimagepath) {
-  let formdata = { message: '\n' + argmessage };
+  let formdata = { message: 'a4a ' + argmessage };
   if ('string' == typeof argimagepath && 0 < argimagepath.length) {
     formdata['imageFile'] = fs.createReadStream(argimagepath);
   }
