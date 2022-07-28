@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="https://glitch.com/favicon.ico" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>Amazon自動購入Bot</title>
+    <link rel="canonical" href="{{url}}">
+    <meta name="description" content="販売元が「Amazon」の場合に自動購入を行うBotプログラム">
+    <meta property="og:title" content="Amazon自動購入Bot">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{url}}">
+    <meta property="og:description" content="販売元が「Amazon」の場合に自動購入を行うBotプログラム">
+    <meta property="og:image" content="https://cdn.glitch.com/605e2a51-d45f-4d87-a285-9410ad350515%2Fhello-node-social.png?v=1618161394375">
+    <meta name="twitter:card" content="summary">
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="content" role="main">
+        <h1>Amazon自動購入Bot</h1>
+
+        {{#if initialize}}
+          <p class="info">先ずは自動購入Botにパスワードを設定して下さい。</p>
+          <b>※アカウント情報は暗号化されてプロジェクト毎に保存される為、作者で有っても参照する事は出来ません。</b>
+          <br/>
+        {{/if}}
+
+        {{#if setup}}
+          <p class="info">自動購入に利用するAmazonアカウントを設定して下さい。</p>
+          <b>※アカウント情報は暗号化されてプロジェクト毎に保存される為、作者で有っても参照する事は出来ません。</b>
+          <br/>
+        {{/if}}
+
+        {{#if line}}
+          <p class="info">通知の送り先のLINEトークンを設定して下さい。</p>
+          <b class="error">※LINEアカウントにはお送り出来ません</b>
+          <b>※LINEトークンは<a href="https://notify-bot.line.me/" target="_blank">コチラから</a>発行して下さい</b>
+          <b>※LINEトークンの発行方法については<a href="https://firestorage.jp/business/line-notify/" target="_blank">コチラをご参考</a>下さい</b>
+          <b>※LINEトークンの発行方にはPCブラウザ表示での設定が必要になります。<br/>スマホでPCブラウザ表示を行う方法は<a href="https://appllio.com/how-to-view-pc-websites-on-smartphone" target="_blank">コチラをご参考</a>下さい</b>
+          <br/>
+        {{/if}}
+
+        {{#if error}}
+          <p class="error"><b>{{error}}</b></p>
+        {{/if}}
+
+        {{#if healthcheck}}
+          <h1>システム稼働中</h1>
+        {{/if}}
+
+        {{#if initialize}}
+          <form method="post" action="/initialize" onsubmit="if (confirm('この設定は最初しか出来ません。\n設定して宜しいですか？')){ return true; } return false;">
+            ID
+            <br/>
+            <input type="text" name="user" value="admin" required readonly/>
+            <br/>
+            <br/>
+            パスワード
+            <br/>
+            <input type="password" name="pass" value="" required />
+            <br/>
+            <br/>
+            <button id="submitItialize" type="submit">設定</button>
+          </form>
+        {{/if}}
+
+        {{#if setup}}
+          <form method="post" action="/account" onsubmit="document.getElementById('submitAccount').textContent='アカウントが有効かどうかチェック中・・・';">
+            メールアドレス
+            <br/>
+            <input type="text" name="identify" value="{{identify}}" required />
+            <br/>
+            <br/>
+            パスワード
+            <br/>
+            <input type="password" name="pass" value="" required />
+            <br/>
+            <br/>
+            <button id="submitAccount" type="submit">保存</button>
+          </form>
+        {{/if}}
+
+        {{#if line}}
+          <form method="post" action="/line">
+            LINEトークン
+            <br/>
+            <input type="text" name="linetoken" value="{{linetoken}}" required />
+            <br/>
+            <br/>
+            <button id="submitLinetoken" type="submit">設定</button>
+          </form>
+        {{/if}}
+
+        {{#if item}}
+          {{#if items}}
+            <h2>対象商品一覧</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th><small>ステータス</small></th>
+                  <th><small>商品名</small></th>
+                  <th><small>ASIN</small></th>
+                  <th><small>最終チェック日時</small></th>
+                  <th><small>&nbsp;</small></th>
+                </tr>
+              </thead>
+              {{#each items}}
+                <tbody>
+                  <form method="post" action="/">
+                    {{#if this.enabled}}
+                      <tr class="enabled">
+                    {{else}}
+                      <tr class="disabled">
+                    {{/if}}
+                      <td>
+                        {{#if this.enabled}}
+                          <b class="enabled">チェック中</b>
+                        {{else}}
+                          <a href="https://www.amazon.co.jp/gp/css/order-history?ref_=nav_orders_first" target="_blank"><b class="disabled">購入完了</b></a>
+                        {{/if}}
+                      </td>
+                      <td>{{this.label}}</td>
+                      <td><a href="https://www.amazon.co.jp/dp/{{this.identify}}" target="_blank">{{this.identify}}</a></td>
+                      <td>{{this.lastchecked}}</td>
+                      <td><button type="submit">削除</button></td>
+                    </tr>
+                    <input type="hidden" name="mode" value="removeitem"/>
+                    <input type="hidden" name="id" value="{{this.id}}"/>
+                  </form>
+              </tbody>
+              {{/each}}
+            </table>
+          {{/if}}
+          {{#if maxitem}}
+            <small>
+              現在最大数の5件の商品が登録されています。
+              <br/>
+              商品の設定をし直す場合は何か登録済みの商品を一度削除して下さい。
+            </small>
+          {{else}}
+            <p class="info">自動購入対象の商品を追加出来ます。</p>
+            <small>
+              以下設定により、監視・自動購入を行うアイテムを最大5件登録出来ます。
+              <br/>
+              優先順位順にアイテムをASINコードで指定して下さい。
+              <br/>
+              <a href="https://aucfan.com/times/archives/4770" target="_blank">ASINコードについてはコチラ等をご参考下さい。</a>
+            </small>
+            <br/>
+            <form method="post" action="/items">
+              ASINコード
+              <br/>
+              <input type="text" name="itemid" value="" required />
+              <br/>
+              <br/>
+              ご自分で見て分かる商品名等の識別
+              <br/>
+              <input type="text" name="itemname" value="" required />
+              <br/>
+              <br/>
+              <button id="submitAddItem" type="submit">追加</button>
+              <input type="hidden" name="mode" value="additem" />
+            </form>
+          {{/if}}
+          {{#if items}}
+            <br/><br/>
+            <h2>設定アカウント</h2>
+            <a href="/account"><span>{{identify}}</span></a>
+            <br/>
+            <h2>通知設定</h2>
+            <a href="/line"><small>{{#if linetoken}}{{linetoken}}{{else}}未設定{{/if}}</small></a>
+            <br/>
+            <h2>常時起動設定</h2>
+            <small><a href="https://console.cron-job.org/login" target="_blank">cron-job.org</a>に会員登録を行い
+              <br/>
+              「CREATE CRONJOB」から「url」を <a href="{{url}}/healthcheck" target="_blank">{{url}}/healthcheck</a>
+              <br/>
+              「Execution schedule」を「Every 1 minute(s)」
+              <br/>
+              に指定して設定を追加して下さい。
+            </small>
+            <small><b>※このシステムは通常5分でスリープしてしまいます。常時商品のチェックを行う場合は常時起動設定を完了させて下さい。</b></small>
+            <br/>
+            <br/>
+          {{/if}}
+        {{/if}}
+
+      </div>
+    </div>
+    <footer class="footer">
+      <small><a href="https://twitter.com/saimushi" target="_blank">お問い合わせはコチラ</a></small>
+       | <small><a href="/">ホーム</a></small>
+    </footer>
+  </body>
+</html>
