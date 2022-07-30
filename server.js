@@ -267,35 +267,28 @@ fastify.after(() => {
   })
 });
 
-fastify.after(() => {
-  fastify.route({
-    method: 'GET',
-    url: '/items',
-    onRequest: fastify.basicAuth,
-    handler: async (request, reply) => {
-      if (!global.isInitialized()) {
-        return reply.redirect(url);
-      }
-      let params = request.query.raw ? {} : { item: true, url: url, };
-      const account = await db.getAccount();
-      if (account) {
-        console.log('account=', account);
-        params.identify = account.identify;
-        params.linetoken = account.linetoken;
-        params.items = await db.getItems();
-        console.log('items=', params.items);
-        if (params.items && params.items.length >= maxitems) {
-          params.maxitem = true;
-        }
-      }
-      else {
-        return reply.redirect(url + '/account');
-      }
-      return request.query.raw
-        ? reply.send(params)
-        : reply.view('/src/pages/index.hbs', params);
+fastify.get('/items', async (request, reply) => {
+  if (!global.isInitialized()) {
+    return reply.redirect(url);
+  }
+  let params = request.query.raw ? {} : { item: true, url: url, };
+  const account = await db.getAccount();
+  if (account) {
+    console.log('account=', account);
+    params.identify = account.identify.split('@')[0].slice(0, 3) + 'xxx@xxx.xxx';
+    params.linetoken = account.linetoken;
+    params.items = await db.getItems();
+    console.log('items=', params.items);
+    if (params.items && params.items.length >= maxitems) {
+      params.maxitem = true;
     }
-  })
+  }
+  else {
+    return reply.redirect(url + '/account');
+  }
+  return request.query.raw
+    ? reply.send(params)
+    : reply.view('/src/pages/index.hbs', params);
 });
 
 fastify.after(() => {

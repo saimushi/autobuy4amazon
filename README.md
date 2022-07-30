@@ -19,7 +19,7 @@
 ## 使い方
 
 - 先ずはこの「[glitch.com](https://glitch.com/)に会員登録を行って下さい。
-- その後、[このページ](https://glitch.com/~autobuy4amazon)の「Remix another」を押して、新たにプロジェクトを作成して下さい。
+- その後、[このページ](https://glitch.com/~autobuy-4-amazon)の「Remix」を押して、新たにプロジェクトを作成して下さい。
 - プロジェクトを作成後、[コチラから](./initialize)プロジェクトの初期化を行って下さい。
 - 以降は手順に沿って設定を完了させて下さい。
   + ※ 最初のAmazonへの自動ログインの際に承認されるようにメール・SMSで通知が来る場合があります。
