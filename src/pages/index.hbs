@@ -21,7 +21,8 @@
         <h1>Amazon自動購入Bot</h1>
 
         {{#if initialize}}
-          <p class="info">先ずは自動購入Botにパスワードを設定して下さい。</p>
+          <p class="info">先ずはこの自動購入BotのWEBサイトにパスワードを設定します。</p>
+          <b>※今後設定の変更等を行う際にIDとパスワードが必要になりますので、設定した内容は大切に保管して下さい。</b>
           <b>※アカウント情報は暗号化されてプロジェクト毎に保存される為、作者で有っても参照する事は出来ません。</b>
           <br/>
         {{/if}}
@@ -51,7 +52,7 @@
 
         {{#if initialize}}
           <form method="post" action="/initialize" onsubmit="if (confirm('この設定は最初しか出来ません。\n設定して宜しいですか？')){ return true; } return false;">
-            ID
+            ID(※固定です)
             <br/>
             <input type="text" name="user" value="admin" required readonly/>
             <br/>
