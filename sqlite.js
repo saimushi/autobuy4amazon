@@ -83,8 +83,8 @@ let initDB = async function () {
         iv = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(crypto.randomBytes(16).toString('hex')));
         console.log('key=', key);
         console.log('iv=', iv);
-        fs.writeFileSync('.key', key);
-        fs.writeFileSync('.iv', iv);
+        fs.writeFileSync('./.data/.key', key);
+        fs.writeFileSync('./.data/.iv', iv);
 
         await db.run(
           'CREATE TABLE items (id INTEGER PRIMARY KEY AUTOINCREMENT, identify TEXT, label TEXT, enabled INTEGER, lastchecked TEXT)'
