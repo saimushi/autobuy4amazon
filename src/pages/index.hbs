@@ -20,6 +20,10 @@
       <div class="content" role="main">
         <h1>Amazon自動購入Bot</h1>
 
+        {{#if cronjob}}
+          <h2>cronjob.de</h2>
+        {{/if}}
+
         {{#if initialize}}
           <p class="info">先ずはこの自動購入BotのWEBサイトにパスワードを設定します。</p>
           <b>※今後設定の変更等を行う際にIDとパスワードが必要になりますので、設定した内容は大切に保管して下さい。</b>
@@ -173,15 +177,15 @@
             <a href="/line"><small>{{#if linetoken}}{{linetoken}}{{else}}未設定{{/if}}</small></a>
             <br/>
             <h2>常時起動設定</h2>
-            <small><a href="https://www.setcronjob.com/login" target="_blank">SetCronJob</a>に会員登録を行い
+            <small><a href="https://www.cronjob.de/anmeldung" target="_blank">cronjob.de</a>に会員登録を行い (※ドイツ語なのでWeb翻訳を活用する事を推奨します！)
               <br/>
-              「New Cron Job」から「URL to call」を <a href="{{url}}/healthcheck" target="_blank">{{url}}/healthcheck</a>
+              「+ Neuen Cronjob anlegen」から「Name」に「bot check」
               <br/>
-              「When to call」を「Every 3 minutes」
+              「Aufzurufende URL」に <a href="{{url}}/healthcheck" target="_blank">{{url}}/healthcheck</a>
               <br/>
-              「Timezone」を「Asia/Tokyo」
+              「Aufrufzeiten」で「Cronjob alle 5 Minuten」を押す
               <br/>
-              に指定して設定を追加して下さい。
+              「Cronjob speichern」を押して設定を追加して下さい。
             </small>
             <small><b>※このシステムは通常5分でスリープしてしまいます。常時商品のチェックを行う場合は常時起動設定を完了させて下さい。</b></small>
             <br/>

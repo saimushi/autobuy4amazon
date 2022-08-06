@@ -121,6 +121,13 @@ const validate = async function (username, password, req, reply, done) {
 };
 fastify.register(require('@fastify/basic-auth'), { validate, authenticate });
 
+fastify.get('/cronjob_*', async (request, reply) => {
+  let params = request.query.raw ? {} : { cronjob: true, url: url, };
+  return request.query.raw
+    ? reply.send(params)
+    : reply.view('/src/pages/index.hbs', params);
+});
+
 fastify.get('/healthcheck', async (request, reply) => {
   let params = request.query.raw ? {} : { healthcheck: true, url: url, };
   return request.query.raw
@@ -606,7 +613,6 @@ const buyAmazon = async function (argitemid, argitemlabel, argViewCartSkiped, ar
 const autobuyCore = async function () {
   console.log('loop batch start', new Date().toLocaleString());
   const account = await db.getAccount();
-  console.log('batch account=', account);
   const identify = account.identify;
   const pass = account.pass;
   linetoken = account.linetoken;
