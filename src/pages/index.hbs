@@ -173,11 +173,13 @@
             <a href="/line"><small>{{#if linetoken}}{{linetoken}}{{else}}未設定{{/if}}</small></a>
             <br/>
             <h2>常時起動設定</h2>
-            <small><a href="https://console.cron-job.org/login" target="_blank">cron-job.org</a>に会員登録を行い
+            <small><a href="https://www.setcronjob.com/login" target="_blank">SetCronJob</a>に会員登録を行い
               <br/>
-              「CREATE CRONJOB」から「url」を <a href="{{url}}/healthcheck" target="_blank">{{url}}/healthcheck</a>
+              「New Cron Job」から「URL to call」を <a href="{{url}}/healthcheck" target="_blank">{{url}}/healthcheck</a>
               <br/>
-              「Execution schedule」を「Every 1 minute(s)」
+              「When to call」を「Every 3 minutes」
+              <br/>
+              「Timezone」を「Asia/Tokyo」
               <br/>
               に指定して設定を追加して下さい。
             </small>

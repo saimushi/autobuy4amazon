@@ -67,8 +67,7 @@ const loginAmazon = async function (argid, argpassd) {
    console.log('ログイン済 スキップ');
    return;
  }
- console.log('ログイン id=', argid);
- console.log('ログイン pass=', argpassd);
+ console.log('ログイン');
  await page.goto('https://www.amazon.co.jp/ap/signin?_encoding=UTF8&openid.assoc_handle=jpflex&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.mode=checkid_setup&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.ns.pape=http%3A%2F%2Fspecs.openid.net%2Fextensions%2Fpape%2F1.0&openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.co.jp%2F%3Fref_%3Dnav_signin');
  await page.waitForSelector('form[name="signIn"]');
  await page.evaluate(function(email, passwd) {
@@ -274,7 +273,6 @@ fastify.get('/items', async (request, reply) => {
   let params = request.query.raw ? {} : { item: true, url: url, };
   const account = await db.getAccount();
   if (account) {
-    console.log('account=', account);
     params.identify = account.identify.split('@')[0].slice(0, 3) + 'xxx@xxx.xxx';
     params.linetoken = account.linetoken;
     params.items = await db.getItems();

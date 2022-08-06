@@ -22,8 +22,6 @@ if (fs.existsSync('./.data/.key')) {
   key = fs.readFileSync('./.data/.key', {encoding: 'utf-8'});
   iv = fs.readFileSync('./.data/.iv', {encoding: 'utf-8'});
 }
-console.log('key=', key);
-console.log('iv=', iv);
 
 let admin = null;
 global.isInitialized = function () {
@@ -46,8 +44,6 @@ global.isAdmin = function (argPass) {
 };
 
 global.encryptAESToUTF8Base64 = function (plaintxt) {
-  console.log('key=', key);
-  console.log('iv=', iv);
   var _key = CryptoJS.enc.Base64.parse(key);
   var _iv = CryptoJS.enc.Base64.parse(iv);
   var encryptdata = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(plaintxt), _key, {iv: _iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
@@ -55,8 +51,6 @@ global.encryptAESToUTF8Base64 = function (plaintxt) {
 };
 
 global.decryptAESFromUTF8Base64 = function (encryptBase64Str) {
-  console.log('key=', key);
-  console.log('iv=', iv);
   var _key = CryptoJS.enc.Base64.parse(key);
   var _iv = CryptoJS.enc.Base64.parse(iv);
   var encryptdata = CryptoJS.enc.Base64.parse(encryptBase64Str);
@@ -81,8 +75,6 @@ let initDB = async function () {
         const crypto = require('crypto');
         key = CryptoJS.enc.Base64.stringify(CryptoJS.PBKDF2(crypto.randomBytes(8).toString('hex'), crypto.randomBytes(16).toString('hex'), {keySize: 4, iterations: 500}));
         iv = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(crypto.randomBytes(16).toString('hex')));
-        console.log('key=', key);
-        console.log('iv=', iv);
         fs.writeFileSync('./.data/.key', key);
         fs.writeFileSync('./.data/.iv', iv);
 
@@ -105,7 +97,6 @@ let initDB = async function () {
   .catch(initerror => {
     console.error(initerror);
   });
-  console.log('initializeddb=', initializeddb);
 };
 
 (async () => {
@@ -128,9 +119,7 @@ module.exports = {
       }
       let accounts = await db.all('SELECT * FROM account LIMIT 1');
       if (accounts.length > 0) {
-        console.log('account=', accounts);
         accounts[0].identify = global.decryptAESFromUTF8Base64(accounts[0].identify);
-        console.log('accounts[0].identify=', accounts[0].identify);
         accounts[0].pass = global.decryptAESFromUTF8Base64(accounts[0].pass);
         if (accounts[0].linetoken) {
           accounts[0].linetoken = global.decryptAESFromUTF8Base64(accounts[0].linetoken);
@@ -148,8 +137,6 @@ module.exports = {
     try {
       identify = global.encryptAESToUTF8Base64(identify);
       pass = global.encryptAESToUTF8Base64(pass);
-      console.log('encrypt identify=', identify);
-      console.log('encrypt pass=', pass);
       if (!db) {
         await initDB();
       }
@@ -182,7 +169,6 @@ module.exports = {
   saveLinetoken: async (linetoken) => {
     try {
       linetoken = global.encryptAESToUTF8Base64(linetoken);
-      console.log('encrypt linetoken=', linetoken);
       if (!db) {
         await initDB();
       }
