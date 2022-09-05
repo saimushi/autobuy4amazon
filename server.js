@@ -136,7 +136,7 @@ fastify.get('/healthcheck', async (request, reply) => {
 });
 
 fastify.get('/', async (request, reply) => {
-  if (!global.isInitialized()) {
+  if (true === (request.headers && request.headers.referer && request.headers.referer == 'https://glitch.com/') || !global.isInitialized()) {
     const readme = await reply.markdown('README.md');
     return reply.code(200).header('Content-Type', 'text/html; charset=utf-8')
     .send('<html><head><title>Amazon自動購入Bot</title><body>' + readme + '</body><script>const elements = document.getElementsByTagName(\'a\'); for(let element of elements){ if (-1 < element.getAttribute(\'href\').indexOf(\'http\')) { element.setAttribute(\'target\', \'_blank\'); } }</script></html>');
